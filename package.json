@@ -1,0 +1,30 @@
+{
+  "name": "isg-karar-destek-sistemi",
+  "version": "1.0.0",
+  "description": "İş Sağlığı ve Güvenliği Karar Destek Sistemi - Node.js, Supabase ve JavaScript ile geliştirilmiş modern bir KDS uygulaması",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "isg",
+    "karar-destek-sistemi",
+    "supabase",
+    "nodejs",
+    "express"
+  ],
+  "author": "İSG Ekibi",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.88.0",
+    "cors": "^2.8.5",
+    "express": "^4.22.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

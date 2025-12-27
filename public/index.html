@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İSG Karar Destek Sistemi</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .badge-kritik { background-color: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 4px; font-weight: bold; border: 1px solid #fca5a5; display: inline-block; }
+        .badge-orta { background-color: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 4px; font-weight: bold; border: 1px solid #fcd34d; display: inline-block; }
+        .badge-guvenli { background-color: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 4px; font-weight: bold; border: 1px solid #6ee7b7; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>🛡️ İSG KDS</h1>
+                <p>Karar Destek Sistemi</p>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-category">👁️ GÖZLEM</div>
+                <a href="#stratejik-ozet" class="menu-item active" data-section="stratejik-ozet">
+                    <span class="icon">📊</span>
+                    <span>Stratejik Özet</span>
+                </a>
+                <a href="#yasal-uyumluluk" class="menu-item" data-section="yasal-uyumluluk" style="display: none;">
+                    <span class="icon">📜</span>
+                    <span>Sertifika Yönetimi</span>
+                </a>
+                <a href="#birim-analizi" class="menu-item" data-section="birim-analizi">
+                    <span class="icon">🎯</span>
+                    <span>Birim Bazlı Karar Analizi</span>
+                </a>
+                <div class="menu-category">🧠 ZEKA</div>
+                <a href="#stratejik-risk-analizi" class="menu-item" data-section="stratejik-risk-analizi">
+                    <span class="icon">📊</span>
+                    <span>Stratejik Risk Analizi</span>
+                </a>
+                <a href="#mevsimsel-analiz" class="menu-item" data-section="mevsimsel-analiz" style="display: none;">
+                    <span class="icon">🌦️</span>
+                    <span>Mevsimsel Risk Analizi</span>
+                </a>
+                <a href="#risk-projeksiyonu" class="menu-item" data-section="risk-projeksiyonu" style="display: none;">
+                    <span class="icon">📈</span>
+                    <span>6 Aylık Risk Projeksiyonu</span>
+                </a>
+                <a href="#ekipman-bakim" class="menu-item" data-section="ekipman-bakim">
+                    <span class="icon">🔧</span>
+                    <span>Ekipman Ömrü ve Bakım</span>
+                </a>
+                <a href="#what-if" class="menu-item" data-section="what-if">
+                    <span class="icon">🔬</span>
+                    <span>What-If Simülasyonu</span>
+                </a>
+                <a href="#butce-maliyet" class="menu-item" data-section="butce-maliyet">
+                    <span class="icon">💰</span>
+                    <span>Bütçe ve Maliyet Etkisi</span>
+                </a>
+                <div class="menu-category">⚡ EYLEM</div>
+                <a href="#egitim-optimizasyonu" class="menu-item" data-section="egitim-optimizasyonu">
+                    <span class="icon">🎓</span>
+                    <span>Eğitim Optimizasyonu</span>
+                </a>
+                <a href="#vardiya-planlayici" class="menu-item" data-section="vardiya-planlayici">
+                    <span class="icon">📅</span>
+                    <span>Stratejik Vardiya Planlayıcı</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>© 2024 İSG Sistemi</p>
+                <p class="version">v1.0.0</p>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="top-header">
+                <h2 id="page-title">Stratejik Özet</h2>
+                <div class="header-actions">
+                    <button class="btn-refresh" onclick="yenile()">🔄 Yenile</button>
+                    <div class="user-info">
+                        <span>İSG Müdürü</span>
+                        <div class="avatar">👤</div>
+                    </div>
+                    <button class="btn-logout" onclick="cikisYap()" title="Çıkış Yap">🚪 Çıkış</button>
+                </div>
+            </header>
+            <div class="content-wrapper">                
+                <section id="stratejik-ozet" class="content-section active">                    
+                    <div class="command-center-filters">
+                        <div class="filter-group">
+                            <label for="birim-filter">📍 Birim:</label>
+                            <select id="birim-filter" class="filter-select">
+                                <option value="tumu">Tüm Birimler</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="zaman-filter">📅 Zaman:</label>
+                            <select id="zaman-filter" class="filter-select">
+                                <option value="3ay" selected>Son 3 Ay</option>
+                                <option value="6ay">Son 6 Ay</option>
+                                <option value="1yil">Son 1 Yıl</option>
+                            </select>
+                        </div>
+                        <button class="btn-filter-apply" onclick="stratejikOzetFiltrele()">
+                            🔍 Filtrele
+                        </button>
+                    </div>
+                    <div class="command-cards-grid">
+                        <div class="command-card kritik">
+                            <div class="command-card-icon">🚨</div>
+                            <div class="command-card-content">
+                                <h3 id="cmd-kritik-birim">-</h3>
+                                <p>Kritik Riskli Birim</p>
+                            </div>
+                            <div class="command-card-trend up">▲</div>
+                        </div>
+                        <div class="command-card uyari">
+                            <div class="command-card-icon">📚</div>
+                            <div class="command-card-content">
+                                <h3 id="cmd-suresi-dolan">-</h3>
+                                <p>Süresi Dolan Eğitim</p>
+                            </div>
+                            <div class="command-card-trend up">▲</div>
+                        </div>
+                        <div class="command-card dikkat">
+                            <div class="command-card-icon">🔧</div>
+                            <div class="command-card-content">
+                                <h3 id="cmd-bakim-bekleyen">-</h3>
+                                <p>Bakım Bekleyen Ekipman</p>
+                            </div>
+                            <div class="command-card-trend stable">━</div>
+                        </div>
+                        <div class="command-card bilgi">
+                            <div class="command-card-icon">📊</div>
+                            <div class="command-card-content">
+                                <h3 id="cmd-aktif-yogunluk">-%</h3>
+                                <p>Aktif Şantiye Yoğunluğu</p>
+                            </div>
+                            <div class="command-card-trend down">▼</div>
+                        </div>
+                    </div>
+                    <div class="command-middle-section">
+                        <div class="command-panel">
+                            <div class="command-panel-header">
+                                <h3>🎯 Birim Risk Isı Haritası</h3>
+                                <span class="command-panel-badge">Canlı</span>
+                            </div>
+                            <div class="command-panel-body">
+                                <canvas id="riskRadarChart"></canvas>
+                            </div>
+                            <div class="command-panel-footer">
+                                <span class="legend-item"><span class="dot red"></span> Yüksek Risk</span>
+                                <span class="legend-item"><span class="dot yellow"></span> Orta Risk</span>
+                                <span class="legend-item"><span class="dot green"></span> Düşük Risk</span>
+                            </div>
+                        </div>
+                        <div class="command-panel">
+                            <div class="command-panel-header">
+                                <h3>📋 Son Olaylar</h3>
+                                <span class="command-panel-badge refresh" onclick="yenile()">🔄</span>
+                            </div>
+                            <div class="command-panel-body">
+                                <div class="events-table">
+                                    <table id="son-olaylar-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Tarih</th>
+                                                <th>Birim</th>
+                                                <th>Olay Tipi</th>
+                                                <th>Şiddet</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="son-olaylar-tbody">
+                                            <tr>
+                                                <td colspan="4" class="loading">Veriler yükleniyor...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="command-bottom-section">
+                        <div class="command-panel wide">
+                            <div class="command-panel-header">
+                                <h3>📈 Aylık Kaza Trendi</h3>
+                                <span class="command-panel-info">Son 12 Ay</span>
+                            </div>
+                            <div class="command-panel-body">
+                                <canvas id="aylikTrendChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="command-panel">
+                            <div class="command-panel-header">
+                                <h3>🎓 Eğitim Uyumluluk Dağılımı</h3>
+                                <span class="command-panel-info">Güncel Durum</span>
+                            </div>
+                            <div class="command-panel-body center">
+                                <canvas id="egitimDoughnutChart"></canvas>
+                            </div>
+                            <div class="command-panel-footer vertical">
+                                <div class="stat-mini">
+                                    <span class="stat-mini-label">Tamamlandı:</span>
+                                    <span class="stat-mini-value green" id="egitim-tamamlandi">-</span>
+                                </div>
+                                <div class="stat-mini">
+                                    <span class="stat-mini-label">Bekliyor:</span>
+                                    <span class="stat-mini-value yellow" id="egitim-bekliyor">-</span>
+                                </div>
+                                <div class="stat-mini">
+                                    <span class="stat-mini-label">Süresi Doldu:</span>
+                                    <span class="stat-mini-value red" id="egitim-doldu">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="command-status-banner" id="genel-durum-banner">
+                        <div class="status-banner-icon">✅</div>
+                        <div class="status-banner-content">
+                            <h4>Sistem Durumu: <span id="genel-durum-text">İyi</span></h4>
+                            <p>Tüm operasyonlar normal parametreler içinde. İyi çalışmalar dileriz.</p>
+                        </div>
+                    </div>
+                    <div class="smart-triggers-section" style="margin-top: 2rem;">
+                        <h3 style="margin-bottom: 1rem; color: #1e293b; font-size: 1.3rem;">
+                            🔔 KDS Akıllı Karar Bildirimleri
+                        </h3>
+                        <div id="smart-triggers-container" class="smart-triggers-grid">
+                            <div class="loading">Akıllı bildirimler yükleniyor...</div>
+                        </div>
+                    </div>
+                </section>
+                <section id="yasal-uyumluluk" class="content-section dark-mode">
+                    <div class="cert-header">
+                        <div class="cert-title-section">
+                            <h2>📜 Yasal Uyumluluk ve Sertifika Yönetimi</h2>
+                            <p>Gerçek zamanlı sertifika takibi ve projeksiyon analizi</p>
+                        </div>
+                    </div>
+                    <div class="projection-control-card">
+                        <div class="projection-header">
+                            <h3>🎯 Projeksiyon Tarihi Seçin</h3>
+                            <p>Gelecekteki bir tarihe göre sertifika durumlarını analiz edin</p>
+                        </div>
+                        <div class="projection-slider-container">
+                            <div class="slider-info">
+                                <span class="slider-label">Bugün</span>
+                                <span class="slider-current-date" id="projection-date-display">--</span>
+                                <span class="slider-label">+12 Ay</span>
+                            </div>
+                            <input type="range" id="projection-slider" class="projection-slider" 
+                                   min="0" max="365" value="0" step="1">
+                            <div class="slider-markers">
+                                <span>Bugün</span>
+                                <span>3 Ay</span>
+                                <span>6 Ay</span>
+                                <span>9 Ay</span>
+                                <span>12 Ay</span>
+                            </div>
+                        </div>
+                        <div class="projection-quick-buttons">
+                            <button class="quick-btn" onclick="setProjection(0)">Bugün</button>
+                            <button class="quick-btn" onclick="setProjection(90)">3 Ay</button>
+                            <button class="quick-btn" onclick="setProjection(180)">6 Ay</button>
+                            <button class="quick-btn" onclick="setProjection(365)">12 Ay</button>
+                        </div>
+                    </div>
+                    <div class="cert-kpi-grid">
+                        <div class="cert-kpi-card valid">
+                            <div class="kpi-icon">✅</div>
+                            <div class="kpi-content">
+                                <h4 id="cert-valid-count">--</h4>
+                                <p>Geçerli Sertifika</p>
+                            </div>
+                        </div>
+                        <div class="cert-kpi-card critical">
+                            <div class="kpi-icon">⚠️</div>
+                            <div class="kpi-content">
+                                <h4 id="cert-critical-count">--</h4>
+                                <p>Kritik (30 Gün)</p>
+                            </div>
+                        </div>
+                        <div class="cert-kpi-card invalid">
+                            <div class="kpi-icon">🚨</div>
+                            <div class="kpi-content">
+                                <h4 id="cert-invalid-count">--</h4>
+                                <p>Geçersiz</p>
+                            </div>
+                        </div>
+                        <div class="cert-kpi-card budget">
+                            <div class="kpi-icon">💰</div>
+                            <div class="kpi-content">
+                                <h4 id="cert-budget-total">-- TL</h4>
+                                <p>Öngörülen Yenileme Maliyeti</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="operational-risk-alert" id="operational-risk-alert" style="display: none;">
+                        <div class="alert-icon-large">🚨</div>
+                        <div class="alert-content-large">
+                            <h3>OPERASYONEL DURDURMA RİSKİ!</h3>
+                            <p id="operational-risk-message">--</p>
+                            <div class="critical-trainings-list" id="critical-trainings-list"></div>
+                        </div>
+                    </div>
+                    <div class="cert-main-grid">
+                        <div class="cert-list-card">
+                            <h3>📋 Personel Sertifika Durumu</h3>
+                            <div class="cert-filters">
+                                <button class="filter-btn active" data-filter="all">Tümü</button>
+                                <button class="filter-btn" data-filter="invalid">Geçersiz</button>
+                                <button class="filter-btn" data-filter="critical">Kritik</button>
+                                <button class="filter-btn" data-filter="valid">Geçerli</button>
+                            </div>
+                            <div class="table-wrapper">
+                                <table id="cert-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Personel</th>
+                                            <th>Görev</th>
+                                            <th>Eğitim</th>
+                                            <th>Zorunluluk</th>
+                                            <th>Geçerlilik Sonu</th>
+                                            <th>Kalan Gün</th>
+                                            <th>Durum</th>
+                                            <th>Maliyet</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cert-tbody">
+                                        <tr>
+                                            <td colspan="8" class="loading">Veriler yükleniyor...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="cert-analysis-section">
+                            <div class="chart-card dark">
+                                <h3>📊 12 Aylık Sertifika Dolum Trendi</h3>
+                                <canvas id="certTrendChart"></canvas>
+                                <div class="chart-info">
+                                    <p>Her ay dolacak sertifika sayısı</p>
+                                </div>
+                            </div>
+                            <div class="compliance-ratio-card">
+                                <h3>📈 Uyumluluk Oranı</h3>
+                                <div class="ratio-circle" id="ratio-circle">
+                                    <span class="ratio-percentage" id="ratio-percentage">--%</span>
+                                </div>
+                                <div class="ratio-info">
+                                    <p id="ratio-status">--</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section id="mevsimsel-analiz" class="content-section">
+                    <h2 style="margin-bottom: 2rem;">🌦️ Mevsimsel Risk Analizi</h2>
+                    <div class="seasonal-stats-grid">
+                        <div class="stat-card blue">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-content">
+                                <h4>Toplam Kaza</h4>
+                                <div class="stat-value" id="total-accidents">--</div>
+                                <p class="stat-label">Tüm Zamanlar</p>
+                            </div>
+                        </div>
+                        <div class="stat-card danger">
+                            <div class="stat-icon">⚠️</div>
+                            <div class="stat-content">
+                                <h4>En Riskli Mevsim</h4>
+                                <div class="stat-value" id="most-risky-season">--</div>
+                                <p class="stat-label" id="risky-season-count">-- kaza</p>
+                            </div>
+                        </div>
+                        <div class="stat-card success">
+                            <div class="stat-icon">📅</div>
+                            <div class="stat-content">
+                                <h4>Mevcut Mevsim</h4>
+                                <div class="stat-value" id="current-season-stat">--</div>
+                                <p class="stat-label" id="current-month-stat">--</p>
+                            </div>
+                        </div>
+                        <div class="stat-card warning">
+                            <div class="stat-icon">🚨</div>
+                            <div class="stat-content">
+                                <h4>Aktif Uyarı</h4>
+                                <div class="stat-value" id="active-warnings">--</div>
+                                <p class="stat-label">Önümüzdeki 3 Ay</p>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div class="heatmap-card">
+                        <h3>📊 Birim Bazlı Mevsimlik Kaza Dağılımı</h3>
+                        <p style="color: #6b7280; margin-bottom: 1rem; font-size: 0.9rem;">
+                            Her birim için mevsimlere göre kaza sayıları gösterilmektedir.
+                        </p>
+                        <div class="heatmap-container">
+                            <canvas id="heatmapChart"></canvas>
+                        </div>
+                    </div>
+                
+                    <div class="forecast-card">
+                        <h3>📈 Gelecek 12 Ay Risk Tahmini</h3>
+                        <canvas id="forecastChart"></canvas>
+                        <div class="alert-box info">
+                            <strong>ℹ️ Bilgi:</strong> Grafik, geçmiş kaza verilerine ve mevsimsel katsayılara göre 
+                            gelecek 12 ayın risk tahminini gösterir. Sonbahar aylarında dış saha birimleri için 
+                            otomatik %30 risk artışı uygulanır.
+                        </div>
+                    </div>
+                
+                    <div class="seasonal-warnings-card">
+                        <h3>🚨 Mevsimsel Uyarılar ve Öneriler</h3>
+                        <div id="seasonal-warnings-list">
+                            <div class="loading">Uyarılar yükleniyor...</div>
+                        </div>
+                    </div>
+                
+                    <div class="seasonal-detail-card">
+                        <h3>📊 Birim Bazlı Mevsimsel Detay</h3>
+                        <div class="table-wrapper">
+                            <table id="seasonal-detail-table">
+                                <thead>
+                                    <tr>
+                                        <th>Birim</th>
+                                        <th>İlkbahar</th>
+                                        <th>Yaz</th>
+                                        <th>Sonbahar</th>
+                                        <th>Kış</th>
+                                        <th>En Riskli Mevsim</th>
+                                        <th>Risk Oranı</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="seasonal-detail-tbody">
+                                    <tr>
+                                        <td colspan="7" class="loading">Veriler yükleniyor...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="seasonal-detail-card" style="margin-top: 2rem; border-top: 4px solid #3b82f6;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3>🛠️ KDS Akıllı Ekipman Risk Karar Matrisi</h3>
+                            <span class="badge info" style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">
+                                Otomatik Analiz Aktif
+                            </span>
+                        </div>
+                        <p style="color: #6b7280; margin-bottom: 1.5rem; font-size: 0.85rem;">
+                            Sistem, kaza açıklamalarını (Kesilme, Elektrik vb.) analiz ederek yüksek riskli ekipmanlar için stratejik bakım kararları üretir.
+                        </p>
+                        <div class="table-wrapper">
+                            <table id="ekipman-risk-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ekipman Adı</th>
+                                        <th>Toplam Kaza</th>
+                                        <th>Risk Durumu</th>
+                                        <th>KDS Stratejik Önerisi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ekipman-risk-tbody">
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; padding: 2rem; color: #94a3b8;">
+                                            Analiz motoru verileri işliyor...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                
+                    <div class="seasonal-stats" style="margin-top: 2rem;">
+                        <h3>📈 Mevsimsel İstatistikler</h3>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <span class="stat-label">Toplam Kaza</span>
+                                <span class="stat-value" id="stat-toplam-kaza">--</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">İlkbahar Kaza</span>
+                                <span class="stat-value" id="stat-ilkbahar">--</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Yaz Kaza</span>
+                                <span class="stat-value warning" id="stat-yaz">--</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Sonbahar Kaza</span>
+                                <span class="stat-value danger" id="stat-sonbahar">--</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Kış Kaza</span>
+                                <span class="stat-value" id="stat-kis">--</span>
+                            </div>
+                            <div class="stat-box">
+                                <span class="stat-label">Dış Saha Birimi</span>
+                                <span class="stat-value" id="stat-dis-saha">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section id="risk-projeksiyonu" class="content-section">
+                    <div class="projection-header">
+                        <h2>🔮 Gelecek Tahmin Analiz Odası</h2>
+                        <p class="section-subtitle">6-12 aylık risk projeksiyonu, kritik faktörler ve akıllı eylem planı</p>
+                    </div>
+                    
+                    <div class="projection-main-grid">
+                        <div class="chart-card projection-chart-card floating-card">
+                            <h3>📈 Stratejik Risk Projeksiyonu (6-12 Ay)</h3>
+                            <p style="color: #6b7280; margin-bottom: 1rem; font-size: 0.9rem;">
+                                Kırmızı kesik çizgi kritik eşik seviyesini (75) gösterir. Gradyan renk geçişi risk trendini temsil eder.
+                            </p>
+                            <div class="chart-container">
+                                <canvas id="riskChart"></canvas>
+                            </div>
+                        </div>
+                        <div id="strategic-decision-box" class="strategic-decision-box floating-card">
+                            <div class="decision-header">
+                            <div class="decision-icon">💡</div>
+                                <h4>Akıllı Eylem Planı</h4>
+                            </div>
+                            <div class="decision-content">
+                                <p id="decision-text" class="decision-summary">Analiz yapılıyor...</p>
+                                <div class="action-checklist">
+                                    <h5>📋 Önerilen Aksiyonlar:</h5>
+                                    <ul id="action-list">
+                                        <li class="action-item">Veriler yükleniyor...</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="factor-analysis-card floating-card">
+                        <h3>🎯 Riski Tetikleyen Kritik Faktörler</h3>
+                        <p style="color: #6b7280; margin-bottom: 1rem; font-size: 0.9rem;">
+                            Risk skorunu etkileyen ana faktörler ve trend analizleri
+                        </p>
+                        <div class="table-wrapper">
+                            <table id="factor-table" class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Faktör Adı</th>
+                                        <th>Risk Katkısı (%)</th>
+                                        <th>Trend</th>
+                                        <th>Açıklama</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="factor-tbody">
+                                    <tr>
+                                        <td colspan="4" class="loading">Faktör analizi yapılıyor...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box" style="margin-top: 2rem;">
+                        <strong>ℹ️ Bilgi:</strong> Bu projeksiyon, mevcut eğitim sertifikalarının geçerlilik süreleri, 
+                        mevsimsel katsayılar, iş yoğunluğu tahminleri ve geçmiş kaza verileri baz alınarak oluşturulmuştur. 
+                        Şimdiden alınacak önlemlerle risk seviyesi düşürülebilir.
+                    </div>
+                </section>
+                <section id="birim-analizi" class="content-section">
+                    <h2 style="margin-bottom: 2rem;">🎯 Birim Bazlı Karar Analizi</h2>
+                    <div class="birim-analiz-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                        <div class="chart-card">
+                            <h3>📊 Birim Performans Benchmark Analizi</h3>
+                            <p style="color: #6b7280; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                                Mevcut durum vs Hedeflenen güvenli seviye karşılaştırması
+                            </p>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="benchmark-birim-select" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">
+                                    🏢 Birim Seçin:
+                                </label>
+                                <select id="benchmark-birim-select" class="form-control" style="width: 100%; padding: 0.5rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 0.9rem;">
+                                    <option value="">Birim seçiniz...</option>
+                                </select>
+                            </div>
+                            <canvas id="birimRiskRadarChart"></canvas>
+                            <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; font-size: 0.85rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 20px; height: 20px; background: rgba(239, 68, 68, 0.3); border: 2px solid #ef4444; border-radius: 3px;"></div>
+                                    <span>Mevcut Risk Durumu</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 20px; height: 20px; background: rgba(59, 130, 246, 0.1); border: 2px solid #3b82f6; border-radius: 3px;"></div>
+                                    <span>Hedeflenen Güvenli Seviye</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="birim-stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="stat-card danger">
+                                <div class="stat-icon">🚨</div>
+                                <div class="stat-content">
+                                    <h4 id="kritik-birim-sayisi">-</h4>
+                                    <p>Kritik Risk Birimi</p>
+                                </div>
+                            </div>
+                            <div class="stat-card warning">
+                                <div class="stat-icon">⚠️</div>
+                                <div class="stat-content">
+                                    <h4 id="orta-birim-sayisi">-</h4>
+                                    <p>Orta Risk Birimi</p>
+                                </div>
+                            </div>
+                            <div class="stat-card success">
+                                <div class="stat-icon">✅</div>
+                                <div class="stat-content">
+                                    <h4 id="guvenli-birim-sayisi">-</h4>
+                                    <p>Güvenli Birim</p>
+                                </div>
+                            </div>
+                            <div class="stat-card info">
+                                <div class="stat-icon">📊</div>
+                                <div class="stat-content">
+                                    <h4 id="ortalama-risk-skoru">-</h4>
+                                    <p>Ortalama Risk Skoru</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                        <div class="table-card risk-table-card">
+                            <h3>📊 Risk Sıralaması (En Yüksek Risk Önce)</h3>
+                            <p style="color: #6b7280; margin-bottom: 1rem;">
+                                Birimler risk skoruna göre sıralanmıştır. Kırmızı satırlar kritik, sarı satırlar orta, yeşil satırlar güvenli durumu gösterir.
+                            </p>
+                            <div class="table-wrapper">
+                                <table id="birim-table" class="risk-table">
+                                    <thead>
+                                        <tr>
+                                            <th>🏢 Birim</th>
+                                            <th>⚠️ Risk Skoru</th>
+                                            <th>📊 Durum</th>
+                                            <th>📚 Eğitim Bitecek</th>
+                                            <th>⏱️ İş Yoğunluğu</th>
+                                            <th>🚨 Geçmiş Kazalar</th>
+                                            <th>💰 Eğitim İhtiyacı (Bütçe)</th>
+                                            <th>📈 ROI Tahmini</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="birim-tbody">
+                                        <tr>
+                                            <td colspan="8" class="loading">Veriler yükleniyor...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>📊 Risk Kategori Dağılımı</h3>
+                            <p style="color: #6b7280; margin-bottom: 1rem; font-size: 0.9rem;">
+                                Seçilen birimin risk kategorileri analizi
+                            </p>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="stacked-birim-select" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">
+                                    🏢 Birim Seçin:
+                                </label>
+                                <select id="stacked-birim-select" class="form-control" style="width: 100%; padding: 0.5rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 0.9rem;">
+                                    <option value="">Birim seçiniz...</option>
+                                </select>
+                            </div>
+                            <div style="height: 350px; position: relative;">
+                                <canvas id="stackedRiskChart"></canvas>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; font-size: 0.85rem; padding: 1rem; background: #f9fafb; border-radius: 0.5rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 16px; height: 16px; background: #ef4444; border-radius: 3px;"></div>
+                                    <span><strong>Eğitim Riski:</strong> Süresi dolan/dolacak eğitimler</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 16px; height: 16px; background: #f97316; border-radius: 3px;"></div>
+                                    <span><strong>Kaza Riski:</strong> Geçmiş kaza kayıtları</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 16px; height: 16px; background: #fbbf24; border-radius: 3px;"></div>
+                                    <span><strong>Ekipman Riski:</strong> Bakım ve ekipman durumu</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="recommendations" class="recommendations-grid">
+                    </div>
+                    <div class="table-card" style="margin-top: 2rem;">
+                        <h3>📋 Detaylı Eğitim Durumu Tablosu</h3>
+                        <p style="color: #6b7280; margin-bottom: 1rem;">
+                            Tüm personelin eğitim durumları, geçerlilik süreleri ve yenileme maliyetleri
+                        </p>
+                        <div class="training-filter-panel" style="display: none; background: #f8fafc; padding: 1.25rem; border-radius: 0.75rem; margin-bottom: 1.5rem; border: 1px solid #e5e7eb;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end;">
+                                <div class="filter-group">
+                                    <label for="training-birim-filter" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; color: #374151;">
+                                        🏢 Birim Seçin:
+                                    </label>
+                                    <select id="training-birim-filter" class="filter-select" style="width: 100%; padding: 0.6rem; border: 2px solid #d1d5db; border-radius: 0.5rem; font-size: 0.9rem; background: white;">
+                                        <option value="">Tüm Birimler</option>
+                                        <option value="Demirci">Demirci</option>
+                                        <option value="Boyacı">Boyacı</option>
+                                        <option value="Tuğlacı">Tuğlacı</option>
+                                        <option value="Sıvacı">Sıvacı</option>
+                                        <option value="Elektrikçi">Elektrikçi</option>
+                                        <option value="Kaynakçı">Kaynakçı</option>
+                                        <option value="Kalıpçı">Kalıpçı</option>
+                                        <option value="Vinç Operatörü">Vinç Operatörü</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="training-egitim-filter" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; color: #374151;">
+                                        🎓 Eğitim Ara:
+                                    </label>
+                                    <select 
+                                        id="training-egitim-filter" 
+                                        class="filter-select"
+                                        style="width: 100%; padding: 0.6rem; border: 2px solid #d1d5db; border-radius: 0.5rem; font-size: 0.9rem; background: white;"
+                                    >
+                                        <option value="">Tüm Eğitimler</option>
+                                        <option value="Kaynakçı Sertifikasyonu">Kaynakçı Sertifikasyonu</option>
+                                        <option value="Vinç Operatörlüğü İleri Sürüş">Vinç Operatörlüğü İleri Sürüş</option>
+                                        <option value="Elektrik Akım Koruma ve LOTO">Elektrik Akım Koruma ve LOTO</option>
+                                        <option value="Temel İSG Eğitimi">Temel İSG Eğitimi</option>
+                                        <option value="Kalıpçı İskele Kurulum Güvenliği">Kalıpçı İskele Kurulum Güvenliği</option>
+                                        <option value="Yangınla Mücadele">Yangınla Mücadele</option>
+                                        <option value="İlkyardım Sertifikası">İlkyardım Sertifikası</option>
+                                        <option value="Yüksekte Çalışma Eğitimi">Yüksekte Çalışma Eğitimi</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <button id="training-clear-filters" class="btn-clear-filters" style="padding: 0.6rem 1.5rem; background: #6b7280; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s;">
+                                        🔄 Temizle
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="training-filter-info" style="margin-top: 1rem; padding: 0.75rem; background: white; border-radius: 0.5rem; border-left: 4px solid #3b82f6; font-size: 0.85rem; color: #1e293b; display: none;">
+                                <strong>📊 Filtre Sonucu:</strong> <span id="training-filter-count">0</span> kayıt gösteriliyor
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table id="detailed-training-table">
+                                <thead>
+                                    <tr>
+                                        <th>Personel Adı</th>
+                                        <th>Birim</th>
+                                        <th>Eğitim Adı</th>
+                                        <th>Geçerlilik Sonu</th>
+                                        <th>Kalan Gün</th>
+                                        <th>Durum</th>
+                                        <th>Maliyet</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detailed-training-tbody">
+                                    <tr>
+                                        <td colspan="7" class="loading">Veriler yükleniyor...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                <section id="what-if" class="content-section">
+                    <div class="simulation-card">
+                        <h3>🔬 What-If Analizi: Eğitim Etkisi Simülasyonu</h3>                        
+                        <div class="simulation-controls">
+                            <div class="form-group">
+                                <label for="birim-select">Birim Seçin:</label>
+                                <select id="birim-select" class="form-control">
+                                    <option value="">-- Birim Seçiniz --</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="egitim-saati">Ek Eğitim Saati: <span id="egitim-value">0</span> saat</label>
+                                <input type="range" id="egitim-saati" class="slider" min="0" max="100" value="0" step="5">
+                                <div class="slider-labels">
+                                    <span>0 saat</span>
+                                    <span>50 saat</span>
+                                    <span>100 saat</span>
+                                </div>
+                            </div>
+                            <button class="btn-primary" onclick="whatIfSimulasyonu()">
+                                🚀 Simülasyonu Çalıştır
+                            </button>
+                        </div>
+                        <div id="simulation-result" class="simulation-result" style="display: none;">
+                            <h4 style="margin-bottom: 2rem;">📊 Simülasyon Sonuçları</h4>
+                            <div id="whatif-kpi-cards" class="whatif-kpi-grid">
+                                <div class="loading">Simülasyon çalıştırılıyor...</div>
+                            </div>
+                            <div class="whatif-chart-container" style="margin-top: 2rem;">
+                                <canvas id="whatif-bar-chart"></canvas>
+                            </div>
+                            <div id="whatif-financial-box" class="whatif-financial-box" style="margin-top: 2rem;">
+                                <div class="loading">Finansal analiz hesaplanıyor...</div>
+                            </div>
+                            <div id="whatif-recommendation-band" class="recommendation-band" style="margin-top: 2rem;">
+                                <div class="loading">Karar önerisi hazırlanıyor...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <h4>ℹ️ What-If Analizi Nedir?</h4>
+                        <p>
+                            What-If analizi, farklı senaryoların etkilerini önceden görmemizi sağlar. 
+                            Yukarıdaki simülasyonda, bir birime ek eğitim verildiğinde risk skorunun 
+                            nasıl değişeceğini anlık olarak hesaplayabilirsiniz.
+                        </p>
+                        <p>
+                            <strong>Formül:</strong> Her 10 saatlik eğitim, risk skorunu yaklaşık %5 azaltır.
+                        </p>
+                    </div>
+                </section>
+                <section id="butce-maliyet" class="content-section">                    
+                    <div class="budget-scenario-panel">
+                        <h3>💼 Senaryo Seçimi ve Önlem Bütçesi</h3>                        
+                        <div class="scenario-grid">
+                            <div class="scenario-selector">
+                                <label for="senaryo-select">🎯 Kaza Senaryosu</label>
+                                <select id="senaryo-select" class="budget-select">
+                                    <option value="">-- Senaryo Seçiniz --</option>
+                                    <option value="yuksekten-dusme">🪂 Yüksekten Düşme</option>
+                                    <option value="elektrik-kazasi">⚡ Elektrik Kazası</option>
+                                    <option value="ekipman-arizasi">🔧 Ekipman Arızası</option>
+                                    <option value="yangin">🔥 Yangın</option>
+                                    <option value="malzeme-sizma">🏗️ Malzeme Sızma/Göçük</option>
+                                </select>
+                                <p class="select-hint">Analiz etmek istediğiniz kaza senaryosunu seçin</p>
+                            </div>
+                            <div class="budget-slider-container">
+                                <label for="onlem-butce-slider">
+                                    💸 Öngörülen Önlem Bütçesi: 
+                                    <span id="onlem-butce-value">500.000</span> TL
+                                </label>
+                                <input 
+                                    type="range" 
+                                    id="onlem-butce-slider" 
+                                    class="budget-slider" 
+                                    min="0" 
+                                    max="5000000" 
+                                    value="500000" 
+                                    step="50000"
+                                >
+                                <div class="slider-markers">
+                                    <span>0 TL</span>
+                                    <span>1M TL</span>
+                                    <span>2.5M TL</span>
+                                    <span>5M TL</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-analyze-budget" onclick="analizBaslat()">
+                            🚀 Analizi Başlat
+                        </button>
+                    </div>
+                    <div id="budget-results-panel" class="budget-results-panel" style="display: none;">
+                        <div class="budget-results-top-row">
+                        <div class="budget-chart-card">
+                            <h3>📊 Maliyet Kıyaslama Analizi</h3>
+                            <canvas id="budgetComparisonChart"></canvas>
+                        </div>
+                        <div class="budget-risk-card">
+                            <h3>🎯 Risk Azaltma Simülasyonu</h3>
+                            <div class="risk-gauge-container">
+                                <div class="risk-gauge-item">
+                                    <div class="risk-gauge-label">Kalan Risk</div>
+                                    <div class="risk-gauge-circle" id="kalan-risk-circle">
+                                        <span id="kalan-risk-text">--</span>
+                                    </div>
+                                </div>
+                                <div class="risk-gauge-arrow">→</div>
+                                <div class="risk-gauge-item success">
+                                    <div class="risk-gauge-label">Koruma Oranı</div>
+                                    <div class="risk-gauge-circle green" id="koruma-circle">
+                                        <span id="koruma-text">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="risk-progress-bar">
+                                <div class="risk-progress-fill" id="risk-progress-fill"></div>
+                            </div>
+                            <p class="risk-explanation" id="risk-explanation">
+                                Bu yatırım ile şantiyenizi olası kazalara karşı koruyabilirsiniz.
+                            </p>
+                            </div>
+                        </div>
+                        <div class="decision-cards-grid">
+                            <div class="decision-card roi-card">
+                                <div class="decision-card-icon">📈</div>
+                                <div class="decision-card-content">
+                                    <h4>ROI (Yatırım Getirisi)</h4>
+                                    <div class="decision-card-value" id="roi-value">--%</div>
+                                    <p class="decision-card-desc" id="roi-desc">
+                                        Yatırımınızın geri dönüş oranı
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="decision-card savings-card">
+                                <div class="decision-card-icon">💰</div>
+                                <div class="decision-card-content">
+                                    <h4>Net Tasarruf</h4>
+                                    <div class="decision-card-value" id="tasarruf-value">-- TL</div>
+                                    <p class="decision-card-desc" id="tasarruf-desc">
+                                        Olası kaza maliyetinden tasarruf
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="decision-card penalty-card">
+                                <div class="decision-card-icon">⚖️</div>
+                                <div class="decision-card-content">
+                                    <h4>Tahmini İdari Ceza</h4>
+                                    <div class="decision-card-value" id="ceza-value">-- TL</div>
+                                    <p class="decision-card-desc" id="ceza-desc">
+                                        Önlem alınmazsa kesilecek ceza
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="budget-decision-banner" id="budget-decision-banner">
+                            <div class="decision-banner-icon" id="decision-icon">✅</div>
+                            <div class="decision-banner-content">
+                                <h4 id="decision-title">Karar Önerisi</h4>
+                                <p id="decision-message">Analiz başlatılıyor...</p>
+                            </div>
+                        </div>
+                        <div class="budget-breakdown-card">
+                            <h3>💼 Detaylı Maliyet Kırılımı</h3>
+                            <div class="breakdown-table">
+                                <div class="breakdown-row">
+                                    <span class="breakdown-label">Kaza Tazminatı:</span>
+                                    <span class="breakdown-value" id="breakdown-tazminat">-- TL</span>
+                                </div>
+                                <div class="breakdown-row">
+                                    <span class="breakdown-label">İdari Para Cezası:</span>
+                                    <span class="breakdown-value" id="breakdown-ceza">-- TL</span>
+                                </div>
+                                <div class="breakdown-row">
+                                    <span class="breakdown-label">İş Kaybı Maliyeti:</span>
+                                    <span class="breakdown-value" id="breakdown-iskaybi">-- TL</span>
+                                </div>
+                                <div class="breakdown-row total">
+                                    <span class="breakdown-label"><strong>Toplam Olası Maliyet:</strong></span>
+                                    <span class="breakdown-value red" id="breakdown-toplam">-- TL</span>
+                                </div>
+                                <div class="breakdown-row investment">
+                                    <span class="breakdown-label"><strong>Önlem Yatırımı:</strong></span>
+                                    <span class="breakdown-value blue" id="breakdown-yatirim">-- TL</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="budget-initial-message" class="alert-box info">
+                        <strong>ℹ️ Nasıl Kullanılır:</strong>
+                        <ol style="margin-top: 1rem; padding-left: 1.5rem;">
+                            <li>Yukarıdan bir <strong>kaza senaryosu</strong> seçin (Örn: Yüksekten Düşme)</li>
+                            <li><strong>Önlem bütçesi</strong> slider'ını hareket ettirerek yatırım tutarını belirleyin</li>
+                            <li><strong>"Analizi Başlat"</strong> butonuna tıklayın</li>
+                            <li>Sistem, yatırımınızın finansal getirisini ve risk azaltma oranını hesaplayacaktır</li>
+                        </ol>
+                    </div>
+                </section>
+                <section id="ekipman-bakim" class="content-section">
+                    <div class="equipment-header-section">
+                        <h2>🔧 KDS Ekipman Analiz Merkezi</h2>
+                        <p class="section-subtitle">Hibrit zeka ile ekipman sağlığı, bakım önceliklendirme ve stratejik karar desteği</p>
+                                </div>
+                    <div class="equipment-filters-section">
+                        <div class="filter-group">
+                            <label for="filter-birim">📍 Birime Göre Süz:</label>
+                            <select id="filter-birim" class="filter-select">
+                                <option value="">Tüm Birimler</option>
+                            </select>
+                            </div>
+                        <div class="filter-group">
+                            <label for="filter-karar">🛡️ Karara Göre Süz:</label>
+                            <select id="filter-karar" class="filter-select">
+                                <option value="">Tüm Kararlar</option>
+                                <option value="ACİL BAKIM">ACİL BAKIM</option>
+                                <option value="BAKIM PLANLA">BAKIM PLANLA</option>
+                                <option value="RUTİN TAKİP">RUTİN TAKİP</option>
+                                <option value="YENİLEME GEREKLİ">YENİLEME GEREKLİ</option>
+                            </select>
+                            </div>
+                        </div>
+                    <div class="chart-card" style="margin-top: 2rem;">
+                        <h3>📊 Birim Bazlı Ekipman Sağlık Dağılımı (Hibrit Zeka)</h3>
+                        <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Her birim için ekipmanların sağlık skoruna göre dağılımı (Yeşil: 71-100%, Sarı: 31-70%, Kırmızı: 0-30%)
+                        </p>
+                        <canvas id="ekipmanBirimRiskGrafik"></canvas>
+                            </div>
+                    <div class="equipment-stats-grid">
+                        <div class="equipment-stat-card good">
+                            <div class="stat-icon-large">✅</div>
+                            <div class="stat-content-large">
+                                <h3 id="equip-iyi-count">-</h3>
+                                <p>İyi Durumda</p>
+                            </div>
+                        </div>
+                        <div class="equipment-stat-card warning">
+                            <div class="stat-icon-large">⚠️</div>
+                            <div class="stat-content-large">
+                                <h3 id="equip-dikkat-count">-</h3>
+                                <p>Dikkat Gerekli</p>
+                            </div>
+                        </div>
+                        <div class="equipment-stat-card critical">
+                            <div class="stat-icon-large">🚨</div>
+                            <div class="stat-content-large">
+                                <h3 id="equip-kritik-count">-</h3>
+                                <p>Kritik Durum</p>
+                            </div>
+                        </div>
+                        <div class="equipment-stat-card info">
+                            <div class="stat-icon-large">🔄</div>
+                            <div class="stat-content-large">
+                                <h3 id="equip-yenileme-count">-</h3>
+                                <p>Yenileme Önerisi</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="equipment-health-banner" id="equip-health-banner">
+                        <div class="health-banner-icon">💚</div>
+                        <div class="health-banner-content">
+                            <h4>Filo Ortalama Sağlık Skoru: <span id="average-health-score">--%</span></h4>
+                            <p id="health-banner-message">Ekipman verileri yükleniyor...</p>
+                        </div>
+                        <div class="health-banner-gauge">
+                            <div class="health-gauge-circle" id="health-gauge-circle">
+                                <span id="health-gauge-text">--%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 2rem;">
+                        <h3 style="margin-bottom: 1rem;">💰 12 Aylık Maliyet Tahmini</h3>
+                        <div id="maliyet-kpi-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                            <div class="loading">Maliyet verileri yükleniyor...</div>
+                        </div>
+                    </div>
+                    <div class="equipment-tables-row">
+                        <div class="table-card equipment-table-half">
+                            <h3>📊 Sağlık Odaklı Karar Destek</h3>
+                            <p style="color: #6b7280; margin-bottom: 1rem; font-size: 0.9rem;">
+                                Sağlık skoru ve kalan ömür bazlı önceliklendirme
+                        </p>
+                            <div class="table-wrapper-scrollable">
+                            <table id="ekipman-karar-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ekipman Adı</th>
+                                        <th>Seri No</th>
+                                        <th>Birim</th>
+                                        <th>Kalan Ömür</th>
+                                        <th>Sağlık Skoru</th>
+                                        <th>Stratejik Karar</th>
+                                        <th>Öneri Detayı</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ekipman-karar-tbody">
+                                    <tr>
+                                        <td colspan="7" class="loading">Veriler yükleniyor...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                        <div class="table-card equipment-table-half">
+                            <h3>📅 Zaman Odaklı Bakım Takvimi</h3>
+                            <p style="color: #6b7280; margin-bottom: 1rem; font-size: 0.9rem;">
+                                Bakım tarihine göre önceliklendirme
+                            </p>
+                            <div class="table-wrapper-scrollable">
+                            <table id="maintenance-schedule-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ekipman Adı</th>
+                                        <th>Birim</th>
+                                        <th>Bakım Tarihi</th>
+                                        <th>Kalan Gün</th>
+                                        <th>Ay</th>
+                                        <th>Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="maintenance-schedule-tbody">
+                                    <tr>
+                                        <td colspan="6" class="loading">Bakım takvimi yükleniyor...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                            </div>
+                    <div class="maintenance-calendar-card accordion-section">
+                        <div class="accordion-header" data-target="maintenance-content">
+                            <div class="accordion-title">
+                                <span class="accordion-icon">📅</span>
+                                <span class="accordion-text">12 Aylık Bakım Projeksiyonu</span>
+                            </div>
+                            <span class="accordion-arrow">▸</span>
+                            </div>
+                        <div class="accordion-content" id="maintenance-content">
+                            <p class="calendar-subtitle">Gelecek 1 yıl içinde planlanması gereken bakım işlemleri</p>
+                            <div class="calendar-timeline">
+                                <div id="maintenance-timeline"></div>
+                            </div>
+                            </div>
+                        </div>
+                    <div class="critical-equipment-card accordion-section" id="critical-equipment-card">
+                        <div class="accordion-header" data-target="critical-content">
+                            <div class="accordion-title">
+                                <span class="accordion-icon">🚨</span>
+                                <span class="accordion-text">Kritik Ekipman Uyarıları ve Stratejik Öneriler</span>
+                            </div>
+                            <span class="accordion-arrow">▸</span>
+                        </div>
+                        <div class="accordion-content" id="critical-content">
+                            <div id="critical-equipment-list"></div>
+                        </div>
+                        </div>
+                    <div class="equipment-list-card accordion-section">
+                        <div class="accordion-header" data-target="equipment-health-content">
+                            <div class="accordion-title">
+                                <span class="accordion-icon">🔧</span>
+                                <span class="accordion-text">Ekipman Sağlık Durumu ve Kalan Ömür</span>
+                            </div>
+                            <span class="accordion-arrow">▸</span>
+                        </div>
+                        <div class="accordion-content" id="equipment-health-content">
+                            <div id="equipment-health-list">
+                                <div class="loading">Ekipman verileri yükleniyor...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section id="vardiya-planlayici" class="content-section">                 
+                    <div class="vardiya-header">
+                        <div class="vardiya-title-section">
+                            <h2>📅 Stratejik Vardiya Planlayıcı</h2>
+                            <p>Gelecek dönem personel yetkinliğini analiz edin ve bütçe etkilerini anlık görün</p>
+                        </div>
+                        <div class="cross-panel-indicator">
+                            <span class="indicator-badge">🔗 Bütçe Paneli ile Entegre</span>
+                        </div>
+                    </div>
+                    <div class="vardiya-controls-section">
+                        <div class="time-selector-card">
+                            <h3>🗓️ Gelecek Dönem Seçin</h3>
+                            <div class="time-buttons">
+                                <button class="time-btn active" data-month="1">1 Ay Sonra</button>
+                                <button class="time-btn" data-month="3">3 Ay Sonra</button>
+                                <button class="time-btn" data-month="6">6 Ay Sonra</button>
+                                <button class="time-btn" data-month="12">1 Yıl Sonra</button>
+                            </div>
+                            <div class="selected-date-display">
+                                <span class="label">Seçili Tarih:</span>
+                                <span class="date-value" id="selected-future-date">--</span>
+                            </div>
+                        </div>
+                        <div class="quick-stats-grid">
+                            <div class="quick-stat-card green">
+                                <div class="stat-icon">✅</div>
+                                <div class="stat-data">
+                                    <h4 id="uygun-personel-count">--</h4>
+                                    <p>Uygun Personel</p>
+                                </div>
+                            </div>
+                            <div class="quick-stat-card orange">
+                                <div class="stat-icon">⚠️</div>
+                                <div class="stat-data">
+                                    <h4 id="dolacak-sertifika-count">--</h4>
+                                    <p>Sertifika Dolacak</p>
+                                </div>
+                            </div>
+                            <div class="quick-stat-card red">
+                                <div class="stat-icon">🚨</div>
+                                <div class="stat-data">
+                                    <h4 id="egitim-gereken-count">--</h4>
+                                    <p>Eğitim Gerekli</p>
+                                </div>
+                            </div>
+                            <div class="quick-stat-card blue">
+                                <div class="stat-icon">💰</div>
+                                <div class="stat-data">
+                                    <h4 id="toplam-egitim-maliyet">-- TL</h4>
+                                    <p>Toplam Eğitim Maliyeti</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="vardiya-main-grid">                        
+                        <div class="vardiya-table-card">
+                            <h3>📋 Personel Sertifika Uygunluk Durumu</h3>
+                            <div class="vardiya-filter-panel">
+                                <div class="filter-group">
+                                    <label for="filter-birim">🏢 Birim Seçin:</label>
+                                    <select id="filter-birim" class="filter-select">
+                                        <option value="">Tüm Birimler</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="filter-egitim">🎓 Eğitim Türü Seçin:</label>
+                                    <select id="filter-egitim" class="filter-select">
+                                        <option value="">Tüm Eğitimler</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="filter-durum">📊 Durum Seçin:</label>
+                                    <select id="filter-durum" class="filter-select">
+                                        <option value="">Tüm Durumlar</option>
+                                        <option value="Uygun">Uygun</option>
+                                        <option value="Süresi Dolmuş">Süresi Dolmuş</option>
+                                        <option value="Acil Yenileme">Acil Yenileme</option>
+                                        <option value="Yenileme Yaklaşıyor">Yenileme Yaklaşıyor</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <button id="clear-filters-btn" class="btn-clear-filters">
+                                        🔄 Filtreleri Temizle
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="table-wrapper">
+                                <table id="sertifika-uygunluk-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Personel Adı</th>
+                                            <th>Birim</th>
+                                            <th>Eğitim</th>
+                                            <th>Geçerlilik Sonu</th>
+                                            <th>Kalan Gün</th>
+                                            <th>Durum</th>
+                                            <th>Maliyet</th>
+                                            <th>İşlem</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sertifika-tbody">
+                                        <tr>
+                                            <td colspan="8" class="loading">Veriler yükleniyor...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="vardiya-right-section">
+                            <div class="chart-card">
+                                <h3>🎯 Ekip Yetkinlik Oranı</h3>
+                                <canvas id="yetkinlikChart"></canvas>
+                                <div class="chart-summary">
+                                    <span class="summary-label">Genel Durum:</span>
+                                    <span class="summary-value" id="yetkinlik-durum-text">--</span>
+                                </div>
+                            </div>
+                            <div class="vardiya-adjuster-card">
+                                <h3>👥 Vardiya Personel Planlaması</h3>
+                                <div class="adjuster-content">
+                                    <div class="form-group">
+                                        <label for="vardiya-birim-select">Birim Seçin:</label>
+                                        <select id="vardiya-birim-select" class="form-control">
+                                            <option value="">Birim seçin...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="personel-sayisi-slider">Personel Sayısı: <span id="personel-sayisi-value">5</span></label>
+                                        <input type="range" id="personel-sayisi-slider" class="slider" min="1" max="20" value="5" step="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="vardiya-saati-slider">Vardiya Saati: <span id="vardiya-saati-value">8</span> saat</label>
+                                        <input type="range" id="vardiya-saati-slider" class="slider" min="4" max="12" value="8" step="1">
+                                    </div>
+                                    <button class="btn-primary btn-full" onclick="vardiyaPersonelDegistir()">
+                                        🚀 Vardiya Planını Uygula
+                                    </button>
+                                    <div class="impact-preview" id="vardiya-impact-preview" style="display: none;">
+                                        <h4>📊 Bütçe ve Risk Etkisi:</h4>
+                                        <p>💰 Aylık İşçilik: <strong id="iscilik-maliyet-preview">-- TL</strong></p>
+                                        <p>📉 Risk Azalması: <strong id="risk-azalma-preview">--%</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cross-panel-alert" id="cross-panel-alert" style="display: none;">
+                        <div class="alert-icon">🔗</div>
+                        <div class="alert-content">
+                            <h4>Paneller Arası Güncelleme</h4>
+                            <p id="cross-panel-message">İşleminiz bütçe panelini etkiledi...</p>
+                        </div>
+                        <button class="btn-goto-budget" onclick="goToBudgetPanel()">
+                            💰 Bütçe Paneline Git
+                        </button>
+                    </div>
+                </section>
+                <section id="egitim-optimizasyonu" class="content-section">                    
+                    <div class="optimization-header">
+                        <div class="optimization-title-section">
+                            <h2>🎯 Eğitim Optimizasyonu ve Önceliklendirme</h2>
+                            <p>Akıllı algoritma ile en yüksek riskli alanlara eğitim önceliği atayın</p>
+                        </div>
+                        <div class="multi-panel-indicator">
+                            <span class="indicator-badge pulse">🔗 3 Panel ile Entegre</span>
+                        </div>
+                    </div>
+                    <div class="optimization-stats-grid">
+                        <div class="opt-stat-card critical">
+                            <div class="stat-icon">🚨</div>
+                            <div class="stat-data">
+                                <h4 id="kritik-birim-count">--</h4>
+                                <p>Kritik Aciliyet Birimi</p>
+                            </div>
+                        </div>
+                        <div class="opt-stat-card high">
+                            <div class="stat-icon">⚠️</div>
+                            <div class="stat-data">
+                                <h4 id="yuksek-risk-count">--</h4>
+                                <p>Yüksek Risk Birimi</p>
+                            </div>
+                        </div>
+                        <div class="opt-stat-card urgent">
+                            <div class="stat-icon">📚</div>
+                            <div class="stat-data">
+                                <h4 id="toplam-egitim-ihtiyaci">--</h4>
+                                <p>Toplam Eğitim İhtiyacı</p>
+                            </div>
+                        </div>
+                        <div class="opt-stat-card cost">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-data">
+                                <h4 id="toplam-egitim-maliyeti-opt">-- TL</h4>
+                                <p>Toplam Eğitim Maliyeti</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="optimization-main-grid">                        
+                        <div class="heatmap-table-card">
+                            <div class="card-header">
+                                <h3>🔥 Birim Aciliyet Isı Haritası</h3>
+                                <div class="heatmap-legend">
+                                    <span class="legend-item red">Çok Yüksek (70+)</span>
+                                    <span class="legend-item orange">Yüksek (50-69)</span>
+                                    <span class="legend-item yellow">Orta (30-49)</span>
+                                    <span class="legend-item green">Düşük (<30)</span>
+                                </div>
+                            </div>
+                            <div class="table-wrapper">
+                                <table id="aciliyet-heatmap-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Öncelik</th>
+                                            <th>Birim</th>
+                                            <th>Personel</th>
+                                            <th>Eğitim Uyumluluk %</th>
+                                            <th>Aciliyet Skoru</th>
+                                            <th>Kaza Riski</th>
+                                            <th>Eylem Önerisi</th>
+                                            <th>İşlem</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="heatmap-tbody">
+                                        <tr>
+                                            <td colspan="8" class="loading">Veriler yükleniyor...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="simulation-section">                            
+                            <div class="investment-simulator-card">
+                                <h3>💡 Eğitim Yatırımı Simülatörü</h3>
+                                <div class="simulator-controls">
+                                    <div class="form-group">
+                                        <label for="sim-birim-select">Birim Seçin:</label>
+                                        <select id="sim-birim-select" class="form-control">
+                                            <option value="">Simülasyon için birim seçin...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="egitim-yatirim-slider">
+                                            Eğitim Yatırımı: <span id="egitim-yatirim-value">75,000</span> TL
+                                        </label>
+                                        <input type="range" id="egitim-yatirim-slider" class="slider" 
+                                               min="0" max="500000" value="75000" step="15000">
+                                        <div class="slider-labels">
+                                            <span>0 TL</span>
+                                            <span>250K</span>
+                                            <span>500K</span>
+                                        </div>
+                                    </div>
+                                    <button class="btn-primary btn-full" onclick="calistirSimulasyon()">
+                                        📊 Simülasyonu Çalıştır
+                                    </button>
+                                </div>                                
+                                <div class="simulation-results" id="simulation-results" style="display: none;">
+                                    <div class="result-row">
+                                        <span class="result-label">Başlangıç Riski:</span>
+                                        <span class="result-value red" id="sim-baslangic-risk">--</span>
+                                    </div>
+                                    <div class="result-row">
+                                        <span class="result-label">Yatırım Sonrası Risk:</span>
+                                        <span class="result-value green" id="sim-sonrasi-risk">--</span>
+                                    </div>
+                                    <div class="result-row highlight">
+                                        <span class="result-label">Risk Azalması:</span>
+                                        <span class="result-value" id="sim-risk-azalma">--%</span>
+                                    </div>
+                                    <div class="result-row">
+                                        <span class="result-label">Tahmini Tasarruf:</span>
+                                        <span class="result-value" id="sim-tasarruf">-- TL</span>
+                                    </div>
+                                    <div class="result-row highlight">
+                                        <span class="result-label">ROI:</span>
+                                        <span class="result-value" id="sim-roi">--%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-card">
+                                <h3>📈 6 Aylık Risk Azalma Trendi</h3>
+                                <canvas id="riskTrendChart"></canvas>
+                                <div class="chart-info">
+                                    <p>Eğitim yatırımının zaman içindeki etkisini gösterir</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bulk-training-panel" id="bulk-training-panel" style="display: none;">
+                        <div class="bulk-panel-header">
+                            <h3>📚 Toplu Eğitim Planlama</h3>
+                            <button class="btn-close" onclick="closeBulkPanel()">✖</button>
+                        </div>
+                        <div class="bulk-panel-content">
+                            <div class="bulk-info">
+                                <p><strong>Seçili Birim:</strong> <span id="bulk-birim-adi">--</span></p>
+                                <p><strong>Eğitim Gereksinimi:</strong> <span id="bulk-personel-sayisi">--</span> personel</p>
+                                <p><strong>Tahmini Maliyet:</strong> <span id="bulk-maliyet">--</span> TL</p>
+                            </div>
+                            <div class="bulk-impact">
+                                <h4>🔗 Paneller Arası Etki:</h4>
+                                <ul>
+                                    <li>💰 <strong>Bütçe Paneli:</strong> <span id="bulk-butce-etki">--</span></li>
+                                    <li>📅 <strong>Vardiya Paneli:</strong> <span id="bulk-vardiya-etki">--</span></li>
+                                    <li>🎯 <strong>Aciliyet Skoru:</strong> <span id="bulk-aciliyet-etki">--</span></li>
+                                </ul>
+                            </div>
+                            <button class="btn-primary btn-large" onclick="onaylaTopluEgitim()">
+                                ✅ Eğitimi Planla ve Tüm Panelleri Güncelle
+                            </button>
+                        </div>
+                    </div>
+                    <div class="multi-panel-alert" id="multi-panel-alert" style="display: none;">
+                        <div class="alert-icon">🎯</div>
+                        <div class="alert-content">
+                            <h4>Çoklu Panel Güncellemesi Tamamlandı!</h4>
+                            <p id="multi-panel-message">--</p>
+                            <div class="affected-panels">
+                                <span class="panel-badge">💰 Bütçe</span>
+                                <span class="panel-badge">📅 Vardiya</span>
+                                <span class="panel-badge">🎯 Optimizasyon</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section id="stratejik-risk-analizi" class="content-section">
+                    <div class="section-header">
+                        <h2>📊 Stratejik Risk Analizi</h2>
+                        <p class="section-subtitle">Top Riskli Birimler ve Kaza Türü Dağılımı</p>
+                    </div>
+                    <div class="risk-cards-container">
+                        <div class="risk-card" id="risk-card-1">
+                            <div class="risk-card-header">
+                                <span class="risk-rank">#1</span>
+                                <span class="risk-badge kritik">Kritik</span>
+                            </div>
+                            <div class="risk-card-body">
+                                <h3 class="risk-birim-adi">Yükleniyor...</h3>
+                                <div class="risk-stat">
+                                    <span class="risk-icon">⚠️</span>
+                                    <span class="risk-number">-</span>
+                                    <span class="risk-label">Kaza</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="risk-card" id="risk-card-2">
+                            <div class="risk-card-header">
+                                <span class="risk-rank">#2</span>
+                                <span class="risk-badge yuksek">Yüksek</span>
+                            </div>
+                            <div class="risk-card-body">
+                                <h3 class="risk-birim-adi">Yükleniyor...</h3>
+                                <div class="risk-stat">
+                                    <span class="risk-icon">⚠️</span>
+                                    <span class="risk-number">-</span>
+                                    <span class="risk-label">Kaza</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="risk-card" id="risk-card-3">
+                            <div class="risk-card-header">
+                                <span class="risk-rank">#3</span>
+                                <span class="risk-badge yuksek">Yüksek</span>
+                            </div>
+                            <div class="risk-card-body">
+                                <h3 class="risk-birim-adi">Yükleniyor...</h3>
+                                <div class="risk-stat">
+                                    <span class="risk-icon">⚠️</span>
+                                    <span class="risk-number">-</span>
+                                    <span class="risk-label">Kaza</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="risk-card" id="risk-card-4">
+                            <div class="risk-card-header">
+                                <span class="risk-rank">#4</span>
+                                <span class="risk-badge orta">Orta</span>
+                            </div>
+                            <div class="risk-card-body">
+                                <h3 class="risk-birim-adi">Yükleniyor...</h3>
+                                <div class="risk-stat">
+                                    <span class="risk-icon">⚠️</span>
+                                    <span class="risk-number">-</span>
+                                    <span class="risk-label">Kaza</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="risk-chart-container">
+                        <div class="chart-header">
+                            <h3>📊 Gruplandırılmış Kaza Türü Analizi (Grouped Bar Chart)</h3>
+                            <div class="chart-legend" id="risk-chart-legend"></div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="stackedBarChart"></canvas>
+                        </div>
+                        <div class="birim-ortalama-container" id="birim-ortalama-container">
+                        </div>
+                        <div class="chart-info">
+                            <div class="info-item">
+                                <span class="info-label">Şantiye Ortalaması:</span>
+                                <span class="info-value" id="stat-ortalama-kaza">-</span>
+                                <span class="info-sublabel">kaza/birim</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">En Riskli Birim:</span>
+                                <span class="info-value" id="stat-riskli-birim">-</span>
+                                <span class="info-sublabel" id="stat-riskli-birim-kaza">- kaza</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Toplam Birim:</span>
+                                <span class="info-value" id="stat-toplam-birim">-</span>
+                                <span class="info-sublabel">analiz edildi</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dual-pie-container">
+                        <div class="pie-chart-card floating-card">
+                            <div class="chart-header">
+                                <h3>🥧 Kaza Türü Dağılımı</h3>
+                                <p class="chart-subtitle">Tüm kazaların türlere göre yüzdelik dağılımı</p>
+                            </div>
+                            <div class="pie-chart-wrapper">
+                                <canvas id="kazaTuruPastaGrafigi"></canvas>
+                            </div>
+                        </div>
+                        <div class="pie-chart-card floating-card">
+                            <div class="chart-header">
+                                <h3>🏢 Birim Bazlı Kaza Dağılımı</h3>
+                                <p class="chart-subtitle">Birimlere göre kaza sayısı dağılımı</p>
+                            </div>
+                            <div class="pie-chart-wrapper">
+                                <canvas id="birimKazaPastaGrafigi"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="donut-chart-card floating-card" style="margin-top: 2rem;">
+                        <div class="chart-header">
+                            <h3>⚠️ Tehlike Türü Dağılım Analizi</h3>
+                            <p class="chart-subtitle">Ramak kala kayıtlarına göre tehlike türlerinin yüzdelik dağılımı</p>
+                        </div>
+                        <div class="filter-group" style="margin-bottom: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 0.75rem; border: 1px solid #e5e7eb;">
+                            <label for="tehlike-birim-filter" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; color: #374151;">
+                                🏢 Birim Filtresi:
+                            </label>
+                            <select id="tehlike-birim-filter" class="form-control" style="width: 100%; max-width: 400px; padding: 0.6rem; border: 2px solid #d1d5db; border-radius: 0.5rem; font-size: 0.9rem; background: white;">
+                                <option value="">Tüm Birimler</option>
+                            </select>
+                        </div>
+                        
+                        <div class="donut-chart-wrapper" style="max-width: 500px; margin: 0 auto; padding: 2rem 0;">
+                            <canvas id="tehlikeTuruDonutChart"></canvas>
+                        </div>
+                        <div id="tehlike-kds-note" class="kds-decision-note" style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 5px solid #f59e0b; border-radius: 0.75rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <div style="display: flex; align-items: start; gap: 1rem;">
+                                <div style="font-size: 2rem; flex-shrink: 0;">🤖</div>
+                                <div>
+                                    <h4 style="margin: 0 0 0.5rem 0; color: #92400e; font-size: 1.1rem; font-weight: 700;">
+                                        KDS Akıllı Karar Mekanizması
+                                    </h4>
+                                    <p id="tehlike-kds-message" style="margin: 0; color: #78350f; font-size: 0.95rem; line-height: 1.6;">
+                                        Veriler analiz ediliyor...
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="scatter-chart-card floating-card" style="margin-top: 2rem;">
+                        <div class="chart-header">
+                            <h3>📍 Kaza Yoğunluk Analizi: Birim & Saat</h3>
+                            <p class="chart-subtitle">Her nokta bir kazayı temsil eder. Renk = Kaza Türü, Konum = Birim & Saat</p>
+                        </div>
+                        <div class="scatter-legend" id="scatter-legend">
+                            <!-- JavaScript ile doldurulacak -->
+                        </div>
+                        <div class="chart-wrapper" style="height: 500px;">
+                            <canvas id="kazaYogunlukScatter"></canvas>
+                        </div>
+                    </div>
+                    <div class="priority-inspection-card floating-card" style="margin-top: 2rem;">
+                        <div class="chart-header">
+                            <h3>🎯 Öncelikli Denetim Listesi</h3>
+                            <p class="chart-subtitle">Kaza sayısı ve risk skoruna göre acil denetim gerektiren birimler</p>
+                        </div>
+                        <div class="table-wrapper">
+                            <table id="priority-inspection-table" class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Öncelik</th>
+                                        <th>Birim</th>
+                                        <th>Toplam Kaza</th>
+                                        <th>Risk Seviyesi</th>
+                                        <th>Önerilen Aksiyon</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="priority-inspection-tbody">
+                                    <tr>
+                                        <td colspan="5" class="loading">Veriler yükleniyor...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script>
+        if (sessionStorage.getItem('isg_logged_in') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+
+
+

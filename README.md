@@ -801,18 +801,6 @@ curl -X POST http://localhost:3000/api/kds/what-if \
   -d '{"birimId": 1, "ekEgitimSaati": 40}'
 ```
 
-##  Lisans
-
-MIT License - Detaylar için `LICENSE` dosyasına bakınız.
-
-##  Katkıda Bulunma
-
-1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'feat: Add amazing feature'`)
-4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
-5. Pull Request açın
-
 ##  İletişim
 
 Proje Sahibi: İSG Ekibi
